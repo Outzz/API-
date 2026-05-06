@@ -2,7 +2,6 @@ import db from "../database/database";
 import { Faq, SuporteMensagem } from "../models/Suporte";
 
 export const suporteRepository = {
-  // ─── Mensagens ──────────────────────────────────────────────────────────────
   buscarMensagens(): SuporteMensagem[] {
     return db.prepare("SELECT * FROM suporte_mensagens ORDER BY criado_em DESC").all() as SuporteMensagem[];
   },
@@ -16,7 +15,7 @@ export const suporteRepository = {
     return { ...msg, id: result.lastInsertRowid as number };
   },
 
-  // ─── FAQ ────────────────────────────────────────────────────────────────────
+  // FAQ 
   buscarFaq(): Faq[] {
     return db.prepare("SELECT * FROM faq").all() as Faq[];
   },

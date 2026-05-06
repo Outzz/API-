@@ -14,7 +14,6 @@ export const rotuloRepository = {
     return {
       nome_produto: produto.nome,
       composicao: produto.composicao ?? "",
-      // indicação e modo de uso podem ser ampliados com colunas dedicadas futuramente
       indicacao: produto.descricao ?? "",
       modo_de_uso: "",
     };
