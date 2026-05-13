@@ -1,75 +1,40 @@
-import { Request, Response } from "express";
+import { app } from "../server";
 import { usuarioRepository } from "../repositories/UsuarioRepository";
 
-export const usuarioController = {
-  listar(req: Request, res: Response): void {
-    try {
-      const usuarios = usuarioRepository.buscarTodos();
-      res.json(usuarios);
-    } catch (err) {
-      res.status(500).json({ erro: "Erro ao listar usuários" });
-    }
-  },
+export function UsuarioController() {
+  app.get("/usuarios", (req, res) => {
+    const usuarios = usuarioRepository.buscarTodos();
+    res.json(usuarios);
+  });
 
-  buscarPorId(req: Request, res: Response): void {
-    try {
-      const id = Number(req.params.id);
-      const usuario = usuarioRepository.buscarPorId(id);
-      if (!usuario) {
-        res.status(404).json({ erro: "Usuário não encontrado" });
-        return;
-      }
-      res.json(usuario);
-    } catch (err) {
-      res.status(500).json({ erro: "Erro ao buscar usuário" });
-    }
-  },
+  app.get("/usuarios/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const usuario = usuarioRepository.buscarPorId(id);
+    if (!usuario) return res.status(404).json({ erro: "Usuário não encontrado" });
+    res.json(usuario);
+  });
 
-  criar(req: Request, res: Response): void {
-    try {
-      const { nome, email, telefone, cpf } = req.body;
-      if (!nome || !email || !telefone || !cpf) {
-        res.status(400).json({ erro: "Campos obrigatórios: nome, email, telefone, cpf" });
-        return;
-      }
-      const usuario = usuarioRepository.criar({ nome, email, telefone, cpf });
-      res.status(201).json(usuario);
-    } catch (err: any) {
-      if (err?.message?.includes("UNIQUE")) {
-        res.status(409).json({ erro: "Email ou CPF já cadastrado" });
-        return;
-      }
-      res.status(500).json({ erro: "Erro ao criar usuário" });
-    }
-  },
+  app.post("/usuarios", (req, res) => {
+    const { nome, email, telefone, cpf } = req.body;
+    if (!nome || !email || !telefone || !cpf)
+      return res.status(400).json({ erro: "Campos obrigatórios: nome, email, telefone, cpf" });
+    const usuario = usuarioRepository.criar({ nome, email, telefone });
+    res.status(201).json(usuario);
+  });
 
-  atualizar(req: Request, res: Response): void {
-    try {
-      const id = Number(req.params.id);
-      const usuario = usuarioRepository.buscarPorId(id);
-      if (!usuario) {
-        res.status(404).json({ erro: "Usuário não encontrado" });
-        return;
-      }
-      usuarioRepository.atualizar(id, req.body);
-      res.json({ mensagem: "Usuário atualizado com sucesso" });
-    } catch (err) {
-      res.status(500).json({ erro: "Erro ao atualizar usuário" });
-    }
-  },
+  app.put("/usuarios/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const usuario = usuarioRepository.buscarPorId(id);
+    if (!usuario) return res.status(404).json({ erro: "Usuário não encontrado" });
+    usuarioRepository.atualizar(id, req.body);
+    res.json({ mensagem: "Usuário atualizado com sucesso" });
+  });
 
-  deletar(req: Request, res: Response): void {
-    try {
-      const id = Number(req.params.id);
-      const usuario = usuarioRepository.buscarPorId(id);
-      if (!usuario) {
-        res.status(404).json({ erro: "Usuário não encontrado" });
-        return;
-      }
-      usuarioRepository.deletar(id);
-      res.json({ mensagem: "Usuário deletado com sucesso" });
-    } catch (err) {
-      res.status(500).json({ erro: "Erro ao deletar usuário" });
-    }
-  },
-};
+  app.delete("/usuarios/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const usuario = usuarioRepository.buscarPorId(id);
+    if (!usuario) return res.status(404).json({ erro: "Usuário não encontrado" });
+    usuarioRepository.deletar(id);
+    res.json({ mensagem: "Usuário deletado com sucesso" });
+  });
+}

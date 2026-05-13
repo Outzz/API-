@@ -18,14 +18,14 @@ export const usuarioRepository = {
     const stmt = db.prepare(
       "INSERT INTO usuarios (nome, email, telefone, cpf) VALUES (?, ?, ?, ?)"
     );
-    const result = stmt.run(usuario.nome, usuario.email, usuario.telefone, usuario.cpf);
+    const result = stmt.run(usuario.nome, usuario.email, usuario.telefone);
     return { ...usuario, id: result.lastInsertRowid as number };
   },
 
   atualizar(id: number, usuario: Partial<Usuario>): void {
     db.prepare(
       "UPDATE usuarios SET nome = COALESCE(?, nome), email = COALESCE(?, email), telefone = COALESCE(?, telefone), cpf = COALESCE(?, cpf) WHERE id = ?"
-    ).run(usuario.nome, usuario.email, usuario.telefone, usuario.cpf, id);
+    ).run(usuario.nome, usuario.email, usuario.telefone, id);
   },
 
   deletar(id: number): void {

@@ -1,94 +1,54 @@
-import { Request, Response } from "express";
+import { app } from "../server";
 import { produtoRepository } from "../repositories/ProdutoRepository";
 
-export const produtoController = {
-  listar(req: Request, res: Response): void {
-    try {
-      const { nome } = req.query;
-      const produtos = nome
-        ? produtoRepository.buscarPorNome(String(nome))
-        : produtoRepository.buscarTodos();
-      res.json(produtos);
-    } catch (err) {
-      res.status(500).json({ erro: "Erro ao listar produtos" });
-    }
-  },
+export function ProdutoController() {
+  app.get("/produtos", (req, res) => {
+    const { nome } = req.query;
+    const produtos = nome
+      ? produtoRepository.buscarPorNome(String(nome))
+      : produtoRepository.buscarTodos();
+    res.json(produtos);
+  });
 
-  buscarPorId(req: Request, res: Response): void {
-    try {
-      const id = Number(req.params.id);
-      const produto = produtoRepository.buscarPorId(id);
-      if (!produto) {
-        res.status(404).json({ erro: "Produto não encontrado" });
-        return;
-      }
-      res.json(produto);
-    } catch (err) {
-      res.status(500).json({ erro: "Erro ao buscar produto" });
-    }
-  },
+  app.get("/produtos/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const produto = produtoRepository.buscarPorId(id);
+    if (!produto) return res.status(404).json({ erro: "Produto não encontrado" });
+    res.json(produto);
+  });
 
-  criar(req: Request, res: Response): void {
-    try {
-      const { nome, preco, estoque, especificacoes, composicao, descricao } = req.body;
-      if (!nome || preco == null || estoque == null) {
-        res.status(400).json({ erro: "Campos obrigatórios: nome, preco, estoque" });
-        return;
-      }
-      const produto = produtoRepository.criar({ nome, preco, estoque, especificacoes, composicao, descricao });
-      res.status(201).json(produto);
-    } catch (err) {
-      res.status(500).json({ erro: "Erro ao criar produto" });
-    }
-  },
+  app.post("/produtos", (req, res) => {
+    const { nome, preco, estoque, especificacoes, composicao, descricao } = req.body;
+    if (!nome || preco == null || estoque == null)
+      return res.status(400).json({ erro: "Campos obrigatórios: nome, preco, estoque" });
+    const produto = produtoRepository.criar({ nome, preco, estoque, especificacoes, composicao, descricao });
+    res.status(201).json(produto);
+  });
 
-  atualizar(req: Request, res: Response): void {
-    try {
-      const id = Number(req.params.id);
-      const produto = produtoRepository.buscarPorId(id);
-      if (!produto) {
-        res.status(404).json({ erro: "Produto não encontrado" });
-        return;
-      }
-      produtoRepository.atualizar(id, req.body);
-      res.json({ mensagem: "Produto atualizado com sucesso" });
-    } catch (err) {
-      res.status(500).json({ erro: "Erro ao atualizar produto" });
-    }
-  },
+  app.put("/produtos/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const produto = produtoRepository.buscarPorId(id);
+    if (!produto) return res.status(404).json({ erro: "Produto não encontrado" });
+    produtoRepository.atualizar(id, req.body);
+    res.json({ mensagem: "Produto atualizado com sucesso" });
+  });
 
-  atualizarEstoque(req: Request, res: Response): void {
-    try {
-      const id = Number(req.params.id);
-      const { estoque } = req.body;
-      if (estoque == null || isNaN(Number(estoque))) {
-        res.status(400).json({ erro: "Campo obrigatório: estoque (número)" });
-        return;
-      }
-      const produto = produtoRepository.buscarPorId(id);
-      if (!produto) {
-        res.status(404).json({ erro: "Produto não encontrado" });
-        return;
-      }
-      produtoRepository.atualizarEstoque(id, Number(estoque));
-      res.json({ mensagem: "Estoque atualizado com sucesso" });
-    } catch (err) {
-      res.status(500).json({ erro: "Erro ao atualizar estoque" });
-    }
-  },
+  app.patch("/produtos/:id/estoque", (req, res) => {
+    const id = Number(req.params.id);
+    const { estoque } = req.body;
+    if (estoque == null || isNaN(Number(estoque)))
+      return res.status(400).json({ erro: "Campo obrigatório: estoque (número)" });
+    const produto = produtoRepository.buscarPorId(id);
+    if (!produto) return res.status(404).json({ erro: "Produto não encontrado" });
+    produtoRepository.atualizarEstoque(id, Number(estoque));
+    res.json({ mensagem: "Estoque atualizado com sucesso" });
+  });
 
-  deletar(req: Request, res: Response): void {
-    try {
-      const id = Number(req.params.id);
-      const produto = produtoRepository.buscarPorId(id);
-      if (!produto) {
-        res.status(404).json({ erro: "Produto não encontrado" });
-        return;
-      }
-      produtoRepository.deletar(id);
-      res.json({ mensagem: "Produto deletado com sucesso" });
-    } catch (err) {
-      res.status(500).json({ erro: "Erro ao deletar produto" });
-    }
-  },
-};
+  app.delete("/produtos/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const produto = produtoRepository.buscarPorId(id);
+    if (!produto) return res.status(404).json({ erro: "Produto não encontrado" });
+    produtoRepository.deletar(id);
+    res.json({ mensagem: "Produto deletado com sucesso" });
+  });
+}
