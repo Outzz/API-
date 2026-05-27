@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS suporte_mensagens (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
   usuario_id INTEGER,
   mensagem   TEXT NOT NULL,
-  criado_em  TEXT NOT NULL DEFAULT (datetime('now')),
+  criado_em  DATE NOT NULL DEFAULT (datetime('now')),
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
